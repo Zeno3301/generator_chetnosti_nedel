@@ -13,13 +13,6 @@
 
 ## Графический интерфейс (GUI)
 
-### Запуск GUI на Windows:
-
-1. **Через батник (рекомендуется):**
-   ```powershell
-   # Двойной клик по файлу:
-   run_gui.bat
-   
 ## Тестирование
 
 1. Скачайте проект: `git clone https://github.com/Zeno3301/Academic-calendar.git`
