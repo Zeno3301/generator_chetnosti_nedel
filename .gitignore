@@ -2,19 +2,52 @@
 __pycache__/
 *.py[cod]
 *.pyc
+*.pyd
+*.pyo
+*.so
 
 # Virtual Environment
 venv/
 env/
+ENV/
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # Системные файлы
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# PyInstaller сборка
+build/
+dist/
+*.spec
+*.log
 
 # Выходные данные программы
 *.csv
 *.xlsx
+*.pdf
+*.json
+
+# Архивы релизов
+*.zip
+*.7z
+*.rar
+*.tar.gz
+
+# Кэш и временные файлы
+.cache/
+*.tmp
+*.temp
+
+logs/
+*.log
+debug.log
+
+test_output/
+reports/

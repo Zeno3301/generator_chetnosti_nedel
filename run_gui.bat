@@ -1,44 +1,56 @@
-@echo off
-chcp 65001 >nul
-echo ========================================
-echo  University Calendar Generator - GUI
-echo ========================================
-echo.
+import tkinter as tk
+import sys
+import os
 
-if not "%VIRTUAL_ENV%" == "" (
-    echo [✓] Виртуальное окружение активировано
-) else (
-    if exist "venv\Scripts\activate.bat" (
-        echo [ ] Активируем виртуальное окружение...
-        call venv\Scripts\activate.bat
-    ) else (
-        echo [!] Виртуальное окружение не найдено
-        echo     Создайте: python -m venv venv
-        pause
-        exit /b 1
-    )
-)
+def force_gui_visible():
+    """Принудительно показываем GUI"""
+    root = tk.Tk()
+    
+    # Настройки окна
+    root.title("NEFU Calendar Generator")
+    root.geometry("800x600")
+    
+    # Принудительное отображение
+    root.attributes('-alpha', 0.0)  # Сначала невидимое
+    root.deiconify()  # Показываем
+    root.update()     # Обновляем
+    
+    # Делаем видимым
+    root.attributes('-alpha', 1.0)
+    
+    # Проверяем видимость
+    print(f"Window visible: {root.winfo_viewable()}")
+    
+    # Создаем простой интерфейс
+    from tkinter import ttk, Label
+    
+    label = Label(root, text="NEFU Calendar Generator\n\n"
+                            "Если вы видите это окно,\n"
+                            "GUI работает правильно!",
+                 font=("Arial", 16))
+    label.pack(pady=50)
+    
+    # Импортируем основное приложение
+    try:
+        # Добавляем путь к src
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        src_dir = os.path.join(current_dir, 'src')
+        
+        if src_dir not in sys.path:
+            sys.path.insert(0, src_dir)
+        
+        from gui_app import CalendarGeneratorApp
+        app = CalendarGeneratorApp(root)
+        print("Main app loaded")
+        
+    except ImportError as e:
+        print(f"Import error: {e}")
+        # Показываем сообщение об ошибке в GUI
+        error_label = Label(root, text=f"Ошибка импорта:\n{e}", 
+                           fg="red", font=("Arial", 10))
+        error_label.pack(pady=20)
+    
+    root.mainloop()
 
-python --version >nul 2>&1
-if errorlevel 1 (
-    echo [ОШИБКА] Python не найден!
-    pause
-    exit /b 1
-)
-
-echo.
-echo Запуск графического интерфейса...
-echo.
-
-python run_gui.py
-
-if errorlevel 1 (
-    echo.
-    echo [ОШИБКА] Не удалось запустить GUI
-    pause
-    exit /b 1
-)
-
-echo.
-echo Программа завершена.
-pause
+if __name__ == "__main__":
+    force_gui_visible()

@@ -1,27 +1,91 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Запуск графического интерфейса генератора календаря
+Главный файл для запуска графического интерфейса
 """
 
 import sys
 import os
+import traceback
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+def main():
+    try:
+        # Проверяем режим (EXE или разработка)
+        is_exe = hasattr(sys, 'frozen') or hasattr(sys, '_MEIPASS')
+        
+        # Получаем правильные пути
+        if is_exe:
+            # В EXE файле
+            base_path = sys._MEIPASS
+            src_path = os.path.join(base_path, 'src')
+        else:
+            # В режиме разработки
+            base_path = os.path.dirname(os.path.abspath(__file__))
+            src_path = os.path.join(base_path, 'src')
+        
+        # Критически важно: добавляем путь
+        if src_path not in sys.path:
+            sys.path.insert(0, src_path)
+        
+        # Также добавляем родительскую директорию src
+        src_parent = os.path.dirname(src_path)
+        if src_parent not in sys.path:
+            sys.path.insert(0, src_parent)
+        
+        # Теперь импортируем
+        try:
+            # Способ 1: Прямой импорт из src
+            import src.gui_app
+            from src.gui_app import AcademicCalendarGUI
+            print("✓ Импорт через src.gui_app")
+            
+        except ImportError:
+            try:
+                # Способ 2: Импорт как модуль
+                import importlib.util
+                module_path = os.path.join(src_path, 'gui_app.py')
+                
+                spec = importlib.util.spec_from_file_location(
+                    "gui_app_module", 
+                    module_path
+                )
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                
+                AcademicCalendarGUI = module.AcademicCalendarGUI
+                print("✓ Импорт через importlib")
+                
+            except Exception as e:
+                print(f"✗ Все способы импорта не удались: {e}")
+                print(f"Путь к файлу: {os.path.join(src_path, 'gui_app.py')}")
+                print(f"Файл существует: {os.path.exists(os.path.join(src_path, 'gui_app.py'))}")
+                
+                # Показываем что в sys.path
+                print(f"\nsys.path:")
+                for p in sys.path:
+                    print(f"  {p}")
+                
+                if not is_exe:
+                    input("Нажмите Enter...")
+                return 1
+        
+        # Импортируем tkinter
+        import tkinter as tk
+        print("✓ tkinter импортирован")
+        
+        # Создаем приложение
+        root = tk.Tk()
+        app = AcademicCalendarGUI(root)
+        root.mainloop()
+        
+        return 0
+        
+    except Exception as e:
+        print(f"❌ Критическая ошибка: {e}")
+        traceback.print_exc()
+        if not is_exe:
+            input("Нажмите Enter...")
+        return 1
 
-try:
-    from gui_app import main as gui_main
-    print("Запуск графического интерфейса...")
-    print("=" * 50)
-    gui_main()
-except ImportError as e:
-    print(f"Ошибка импорта: {e}")
-    print("\nУбедитесь, что:")
-    print("1. Установлен Python 3.8+")
-    print("2. Файл src/gui_app.py существует")
-    print("3. Все зависимости установлены")
-    input("\nНажмите Enter для выхода...")
-except Exception as e:
-    print(f"Ошибка: {e}")
-    import traceback
-    traceback.print_exc()
-    input("\nНажмите Enter для выхода...")
+if __name__ == "__main__":
+    sys.exit(main())
